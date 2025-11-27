@@ -1,6 +1,6 @@
 replicas: 1
 adminUser: admin
-adminPassword: 1234
+adminPassword: Osckorea1234!
   
 persistence:
   enabled: true
