@@ -1,0 +1,55 @@
+controller:
+  type: deployment
+  deployment:
+    replicas: 1
+
+alloy:
+  configMap:
+    content: |-
+      logging {
+        level  = "info"
+        format = "logfmt"
+      }
+
+      loki.write "loki" {
+        endpoint {
+          url = "http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+        }
+      }
+
+      loki.source.kafka "k8s_logs" {
+        brokers = [
+          "192.168.31.173:9092",
+          "192.168.31.174:9092",
+          "192.168.31.175:9092",
+        ]
+
+        topics = ["k8s-logs"]
+
+        group_id = "alloy-k8s-logs"
+
+
+        authentication {
+          type = "sasl" 
+
+          sasl_config {
+            mechanism = "SCRAM-SHA-512" 
+            user      = "admin"
+            password  = "1234"
+            use_tls   = false           
+          }
+        }
+
+        labels = {
+          job    = "kafka-logs",
+          source = "fluent-bit",
+          topic  = "k8s-logs",
+        }
+
+
+        forward_to = [loki.write.loki.receiver]
+
+        use_incoming_timestamp = false
+      }
+
+

@@ -1,0 +1,26 @@
+yamlApplicationConfig:
+  kafka:
+    clusters:
+      - name: local
+        bootstrapServers: 192.168.31.173:9092,192.168.31.174:9092,192.168.31.175:9092
+        properties:
+          security.protocol: SASL_PLAINTEXT
+          sasl.mechanism: SCRAM-SHA-512
+          sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="1234";
+
+service:
+  type: NodePort
+  nodePort: 32005
+
+nodeSelector:
+  application/instance-type: oss
+
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  host: "kafka.ps3-osc.com"
+  tls:
+    enabled: false
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"

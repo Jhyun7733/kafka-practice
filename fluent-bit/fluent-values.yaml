@@ -1,0 +1,54 @@
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 2020
+
+metrics:
+  enabled: false
+
+config:
+
+  inputs: |
+    [INPUT]
+        Name tail
+        Path /var/log/containers/*.log
+        multiline.parser docker, cri
+        Tag kube.*
+        Mem_Buf_Limit 50MB
+        Skip_Long_Lines On
+
+  filters: |
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_Tag_Prefix     kube.var.log.containers.
+        Merge_Log           On
+        Keep_Log            On
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+        Annotations         Off
+        Labels              On
+        Merge_Log_Key       log
+        
+
+  outputs: |
+    [OUTPUT]
+        Name          kafka
+        Match         kube.*
+        Brokers       192.168.31.173:9092,192.168.31.174:9092,192.168.31.175:9092
+        Topics        k8s-logs
+        rdkafka.log.connection.close false
+        rdkafka.security.protocol   sasl_plaintext
+        rdkafka.sasl.mechanisms     SCRAM-SHA-512
+        rdkafka.sasl.username       admin
+        rdkafka.sasl.password       1234
+
+resources:
+  limits:
+    memory: 512Mi
+    cpu: 500m
+  requests:
+    memory: 256Mi
+    cpu: 250m

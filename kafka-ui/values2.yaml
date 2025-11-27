@@ -1,0 +1,26 @@
+yamlApplicationConfig:
+  kafka:
+    clusters:
+      - name: local
+        bootstrapServers: kafka-controller-headless.kafka.svc.cluster.local:9092
+        properties:
+          security.protocol: SASL_PLAINTEXT
+          sasl.mechanism: SCRAM-SHA-256
+          sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="kafka" password="New12345";
+
+service:
+  type: NodePort
+  nodePort: 32005
+  
+nodeSelector:
+  application/instance-type: oss
+  
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  host: "kafka.molyday.com"
+  tls:
+    enabled: false
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
