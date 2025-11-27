@@ -12,9 +12,6 @@ service:
   type: NodePort
   nodePort: 32005
 
-nodeSelector:
-  application/instance-type: oss
-
 ingress:
   enabled: true
   ingressClassName: "nginx"
